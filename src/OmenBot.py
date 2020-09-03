@@ -13,10 +13,14 @@ import os
 import re
 import requests
 import asyncio
+import json
 
+#Get Discord Token from gitignored config.json
+with open('config.json') as config_file:
+    config = json.load(config_file)
 
 #Discord.py API Code
-TOKEN = 'NzIyMzA0Njg4NjA2Njc0OTQ1.XuhSdw.OndH5tc1U-jcSJPkp0kV4ddNsds'
+TOKEN = config['keys']['token']
 client = commands.Bot(command_prefix='!ob ')
 
 #Global variable for remembering the last played song
