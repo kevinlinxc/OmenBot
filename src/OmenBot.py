@@ -151,6 +151,7 @@ async def whereistheiss(ctx):
 #Takes a Youtube url or a youtube search query and then plays it
 @client.command(aliases=['p'], brief='Plays a Youtube link or YT search query if its <10 m')
 async def play(ctx, *url: str):
+    await join(ctx)
     #takes multiple words as argument for longer search queries
     url = " ".join(url[:])
     text = False
@@ -165,7 +166,7 @@ async def play(ctx, *url: str):
         await ctx.send("Error: Music playing")
         return
     #if trying to play a playlist, deny
-    if "list" in url:
+    if "?list" in url:
         await ctx.send("No playlists please!")
         return
     #if it's a normal link, proceed
@@ -193,7 +194,11 @@ async def play(ctx, *url: str):
         dict = ydl.extract_info(
             url,
             download=False)
+        print(dict)
         if text: #if the request was a text search instead of a url, the extract_info dict will be different
+            if len(dict['entries']) == 0:
+                await ctx.send("No results found")
+                return
             if dict['entries'][0]['duration'] > 10 * 60: #If the video is too long
                 await ctx.send("Video longer than 10 minutes, stop trying to kill Kevin's C drive :(")
                 return
@@ -223,9 +228,13 @@ async def play(ctx, *url: str):
     print("playing\n")
 
 #Repeats the last song played
-@client.command(aliases=['r','replay','restart','re','ree'], brief='Repeats the last video from play')
+@client.command(aliases=['replay','restart'], brief='Repeats the last video from play')
 async def repeat(ctx):
     name = lastplayedname
+    if(name == 'No songs have been played yet'):
+        await ctx.send(name)
+        return
+
     voice.play(discord.FFmpegPCMAudio("song.mp3"), after=lambda e: print(f"{name} has finished playing"))
     voice.source = discord.PCMVolumeTransformer(voice.source)
     voice.source.volume = 0.50
@@ -233,5 +242,38 @@ async def repeat(ctx):
     await ctx.send(f"Playing: {nname}")
     print("playing\n")
 
+#Pauses current song
+@client.command(aliases=['pa'], brief='Pauses the music currently being played')
+async def pause(ctx):
+    voice = get(client.voice_clients, guild = ctx.guild)
+    if voice and voice.is_playing():
+        print("Music paused")
+        voice.pause()
+        await ctx.send("Music paused, use \"!ob resume\" to resume")
+    else:
+        print("Music not playing")
+        await ctx.send("There is no music playing, failed to pause")
+
+@client.command(aliases=['re'], brief='Resumes paused music')
+async def resume(ctx):
+    voice = get(client.voice_clients, guild = ctx.guild)
+    if voice and voice.is_paused():
+        print("Resumed music")
+        voice.resume()
+        await ctx.send("Resumed music")
+    else:
+        print("Music is not paused")
+        await ctx.send("Music is not paused")
+
+@client.command(aliases=['st'], brief='Stops music')
+async def stop(ctx):
+    voice = get(client.voice_clients, guild=ctx.guild)
+    if voice and voice.is_playing():
+        print("Music stopped")
+        voice.stop()
+        await ctx.send("Music stopped")
+    else:
+        print("Music not playing")
+        await ctx.send("There is no music playing, failed to stop")
 #Runs the bot
 client.run(TOKEN)
