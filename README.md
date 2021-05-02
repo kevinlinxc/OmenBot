@@ -1,7 +1,7 @@
 # OmenBot
 A personal Discord.py bot that plays music, funny Valorant sound effects and fetches random information from APIs.
 
-Notably, the bot can play music using Youtube URLs or can search Youtube for a query instead and play the top video
+Notably, the bot can play music using Youtube URLs or can search Youtube for a query instead. While the video is playing in a voice channel, the music can be paused, resumed, stopped and repeated.
 
 This isn't exactly a bot you can clone and run, but there's a lot of Discord.py functionality that I figured out traversing tutorials and Stack Overflow
 
