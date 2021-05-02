@@ -14,6 +14,7 @@ import re
 import requests
 import asyncio
 import json
+from xkcdlib.xkcdRoulette import makerandomxkcd
 
 #Get Discord Token from gitignored config.json
 with open('config.json') as config_file:
@@ -21,7 +22,12 @@ with open('config.json') as config_file:
 
 #Discord.py API Code
 TOKEN = config['keys']['token']
-client = commands.Bot(command_prefix='!ob ')
+
+help_command = commands.DefaultHelpCommand(
+    no_category = 'Help'
+)
+client = commands.Bot(command_prefix='!ob ',
+                      help_command = help_command)
 
 #Global variable for remembering the last played song
 lastplayedname = 'No songs have been played yet'
@@ -103,7 +109,7 @@ async def kekw(ctx, *arg1):
     voice.source.volume = 0.85
     await ctx.send(ctx.message.content[3:])
     await asyncio.sleep(5)
-    if ('-l' in arg1):
+    if ('-l' in arg1 and not '-long' in arg1):
         await leave(ctx)
 
 #Joins the voice channel that you're in
@@ -275,5 +281,12 @@ async def stop(ctx):
     else:
         print("Music not playing")
         await ctx.send("There is no music playing, failed to stop")
+
+@client.command( brief='Sends randomized xkcd comic')
+async def xkcd(ctx):
+    await ctx.send('One moment...', delete_after=1)
+    print("Making xkcd")
+    makerandomxkcd()
+    await ctx.send(file=discord.File('xkcd.png'))
 #Runs the bot
 client.run(TOKEN)
